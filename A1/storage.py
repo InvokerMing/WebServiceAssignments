@@ -2,7 +2,7 @@ import sqlite3
 from contextlib import closing
 
 class UrlStorage:
-    def __init__(self, db_path='urls.db'):
+    def __init__(self, db_path="urls.db"):
         self.db_path = db_path
         self._init_db()
 
@@ -24,37 +24,49 @@ class UrlStorage:
     def add_url(self, original_url, short_code):
         with closing(self._get_conn()) as conn:
             try:
-                conn.execute(
-                    'INSERT INTO urls (original_url, short_code) VALUES (?, ?)',
+                cursor = conn.execute(
+                    "INSERT INTO urls (original_url, short_code) VALUES (?, ?)",
                     (original_url, short_code)
                 )
                 conn.commit()
-                return True
+                return cursor.lastrowid
             except sqlite3.IntegrityError:
-                return False
+                return None
 
-    def get_url(self, short_code):
+    def get_url(self, url_id):
         with closing(self._get_conn()) as conn:
             cursor = conn.execute(
-                'SELECT original_url FROM urls WHERE short_code = ?',
-                (short_code,)
+                "SELECT original_url FROM urls WHERE id = ?",
+                (url_id,)
             )
             result = cursor.fetchone()
             return result[0] if result else None
 
-    def increment_visits(self, short_code):
+    def update_url(self, url_id, new_url):
         with closing(self._get_conn()) as conn:
-            conn.execute(
-                'UPDATE urls SET visits = visits + 1 WHERE short_code = ?',
-                (short_code,)
+            cursor = conn.execute(
+                "UPDATE urls SET original_url = ? WHERE id = ?",
+                (new_url, url_id)
             )
             conn.commit()
+            return cursor.rowcount > 0
 
-    def get_stats(self, short_code):
+    def delete_url(self, url_id):
         with closing(self._get_conn()) as conn:
             cursor = conn.execute(
-                'SELECT visits FROM urls WHERE short_code = ?',
-                (short_code,)
+                "DELETE FROM urls WHERE id = ?",
+                (url_id,)
             )
-            result = cursor.fetchone()
-            return result[0] if result else None
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def get_all_urls(self):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute("SELECT id, original_url FROM urls")
+            return [{"id": row[0], "value": row[1]} for row in cursor.fetchall()]
+
+    def delete_all(self):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute("DELETE FROM urls")
+            conn.commit()
+            return cursor.rowcount # return the number of deleted rows
