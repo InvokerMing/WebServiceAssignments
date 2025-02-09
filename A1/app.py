@@ -59,7 +59,7 @@ def update_url(url_id):
         return jsonify({'error': 'URL not found'}), 404
 
     # check if url is valid
-    if not data['url'].strip() or not data['url'].startswith(('http://', 'https://')):
+    if not checkURL(data['url']):
         return jsonify({'error': 'Invalid URL'}), 400
 
     if storage.update_url(url_id, data['url']):
