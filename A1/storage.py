@@ -70,3 +70,12 @@ class UrlStorage:
             cursor = conn.execute("DELETE FROM urls")
             conn.commit()
             return cursor.rowcount # return the number of deleted rows
+        
+    def count_codes_by_length(self, length):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute(
+                "SELECT COUNT(*) FROM urls WHERE LENGTH(short_code) = ?",
+                (length,)
+            )
+            result = cursor.fetchone
+            return cursor.fetchone()[0] if result else 0
