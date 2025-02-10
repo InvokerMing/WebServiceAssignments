@@ -8,6 +8,7 @@ app = Flask(__name__)
 storage = UrlStorage()
 
 def generate_short_code(length=4):
+    # random.seed(42)
     chars = string.ascii_letters + string.digits
     return ''.join(random.choice(chars) for _ in range(length))
 
@@ -54,7 +55,7 @@ def update_url(url_id):
     if not data or 'url' not in data:
         return jsonify({'error': 'Invalid or missing JSON data'}), 400
 
-    # check if id is valid
+    # check if id is valid  
     if not storage.get_url(url_id):
         return jsonify({'error': 'URL not found'}), 404
 
