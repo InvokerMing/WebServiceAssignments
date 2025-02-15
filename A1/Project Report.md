@@ -21,9 +21,9 @@ The service adheres to the following operational behavior:
 
 ---
 
-#### **3. Key Design Decisions**  
+#### **3. Key Design**  
 
-**3.1 Short Code Generation Algorithm**  
+**3.1 Short URL Generation Algorithm**  
 - **Mechanism**: Randomly generated strings of length 4 (default) or 6, using alphanumeric characters (62 possible values per character). The capacity is about 1.4M for 4-digit and 56.8B for 6-digit.  
 - **Collision Handling**: Database uniqueness checks ensure no duplicate short codes. If a collision occurs, regeneration is performed until a unique code is found.  
 
@@ -60,5 +60,5 @@ To enable user-specific URL management, the following modifications are required
 | Name        | Specific Tasks                                               |
 | ----------- | ------------------------------------------------------------ |
 | Hongyu Chen | - Modify existing code (optimize logic, fix bugs).<br>- Write the project report (implementation details, design decisions). |
-| Yueming Sun | - Develop core features (short code generation, regex URL validation).<br>- Implement API endpoints (POST/GET/PUT/DELETE). |
-
+| Yueming Sun | - Develop core features (short URL generation, regex URL validation).<br>- Implement API endpoints (POST/GET/PUT/DELETE). |
+| CY Yau Chun Yuen | - Help write project report (joining the group later) |

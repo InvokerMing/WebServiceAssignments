@@ -2,11 +2,14 @@
  
 Use Python + Flask
 
-A1: 
+A1:
 
 Code: finished.
 
-DOC:  https://docs.google.com/document/d/178IQGe-2vZViAkPSmjqq08szgEHlIfvctxK9npRupLU/edit?usp=sharing
+DOC: finished.
 
+A2:
 
+Code: jwt - finished; auth - finished; user_storage - finished; app.py - waiting for work.
 
+DOC: waiting for work.
