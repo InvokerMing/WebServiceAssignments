@@ -1,7 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Flask
 import bcrypt
 from user_storage import UserStorage
 from jwt import generate_jwt, validate_jwt
+from functools import wraps
 
 auth_bp = Blueprint('auth', __name__)
 user_storage = UserStorage()
@@ -9,7 +10,6 @@ JWT_SECRET = "your-strong-secret-key-here"
 
 @auth_bp.route('/users', methods=['POST'])
 def register():
-    """用户注册"""
     data = request.get_json()
     if not data or 'username' not in data or 'password' not in data:
         return jsonify({"error": "Missing username or password"}), 400
@@ -25,7 +25,6 @@ def register():
 
 @auth_bp.route('/users/login', methods=['POST'])
 def login():
-    """用户登录并获取JWT"""
     data = request.get_json()
     username = data.get('username', '')
     password = data.get('password', '').encode('utf-8')
@@ -35,11 +34,10 @@ def login():
         return jsonify({"error": "forbidden"}), 403
 
     jwt_token = generate_jwt(user[0], JWT_SECRET)
-    return jsonify({"JWT": jwt_token}), 200
+    return jsonify({"token": jwt_token}), 200
 
 @auth_bp.route('/users', methods=['PUT'])
 def update_password():
-    """修改密码"""
     data = request.get_json()
     username = data.get('username', '')
     old_password = data.get('old', '').encode('utf-8')
@@ -57,7 +55,6 @@ def update_password():
 
 @auth_bp.route('/validate_token', methods=['POST'])
 def validate_token():
-    """供URL服务验证JWT的端点"""
     token = request.json.get('token', '')
     user_id = validate_jwt(token, JWT_SECRET)
     if user_id:
@@ -66,7 +63,8 @@ def validate_token():
         return jsonify({"valid": False}), 403
 
 def jwt_required(func):
-    """JWT验证装饰器（供URL服务使用）"""
+    """JWT验证装饰器"""
+    @wraps(func)
     def wrapper(*args, **kwargs):
         token = request.headers.get("Authorization", "").replace("Bearer ", "")
         user_id = validate_jwt(token, JWT_SECRET)
@@ -74,3 +72,8 @@ def jwt_required(func):
             return jsonify({"error": "Invalid token"}), 403
         return func(user_id, *args, **kwargs)
     return wrapper
+
+if __name__ == '__main__':
+    app = Flask(__name__)
+    app.register_blueprint(auth_bp)
+    app.run(port=5001, debug=True)

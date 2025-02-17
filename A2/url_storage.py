@@ -77,33 +77,27 @@ class UrlStorage:
             cursor = conn.execute("SELECT id, original_url FROM urls")
             return [{"id": row[0], "value": row[1]} for row in cursor.fetchall()]
 
-    def delete_all(self):
+    def delete_all_by_user(self, user_id):
         with closing(self._get_conn()) as conn:
-            cursor = conn.execute("DELETE FROM urls")
+            cursor = conn.execute(
+                "DELETE FROM urls WHERE user_id = ?",
+                (user_id,)
+                )
             conn.commit()
             return cursor.rowcount # return the number of deleted rows
         
-def get_short_code_exists(self, short_code):
-    with closing(self._get_conn()) as conn:
-        cursor = conn.execute(
-            "SELECT 1 FROM urls WHERE short_code = ?",
-            (short_code,)
-        )
-        return cursor.fetchone() is not None
+    def get_short_code_exists(self, short_code):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute(
+                "SELECT 1 FROM urls WHERE short_code = ?",
+                (short_code,)
+            )
+            return cursor.fetchone() is not None
 
-def count_codes_by_length(self, length):
-    with closing(self._get_conn()) as conn:
-        cursor = conn.execute(
-            "SELECT COUNT(*) FROM urls WHERE LENGTH(short_code) = ?",
-            (length,)
-        )
-        return cursor.fetchone()[0]
-
-def get_url_by_short_code(self, short_code):
-    with closing(self._get_conn()) as conn:
-        cursor = conn.execute(
-            "SELECT original_url FROM urls WHERE short_code = ?",
-            (short_code,)
-        )
-        result = cursor.fetchone()
-        return result[0] if result else None
+    def count_codes_by_length(self, length):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute(
+                "SELECT COUNT(*) FROM urls WHERE LENGTH(short_code) = ?",
+                (length,)
+            )
+            return cursor.fetchone()[0]
