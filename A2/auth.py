@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, Flask
 import bcrypt
 from user_storage import UserStorage
@@ -80,9 +80,9 @@ def jwt_required(func):
 
 @auth_bp.route('/users/logout', methods=['POST'])
 @jwt_required
-def logout():
+def logout(user_id):
     token = request.headers.get("Authorization", "").replace("Bearer ", "")
-    expires_at = datetime.ucnow() + datetime.timedelta(seconds=12000)
+    expires_at = datetime.now() + timedelta(seconds=12000)
     if user_storage.add_to_blacklist(token, expires_at):
         return jsonify({"message": "Logged out"}), 200
     else:
