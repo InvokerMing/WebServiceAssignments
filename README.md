@@ -10,6 +10,6 @@ DOC: finished.
 
 A2:
 
-Code: jwt - finished; auth - finished; user_storage - finished; app.py - waiting for work.
+Code: basic finished. no bonus.
 
 DOC: waiting for work.

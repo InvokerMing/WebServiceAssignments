@@ -50,13 +50,6 @@ def get_url_by_id(url_id):
         return jsonify({'value': url_data['original_url']}), 301
     return jsonify({'error': 'URL not found'}), 404
 
-# @app.route('/<int:url_id>', methods=['GET'])
-# def redirect_to_original(url_id):
-#     url_data = storage.get_url(url_id)
-#     if url_data:
-#         return jsonify({'value': url_data['original_url']}), 301
-#     return jsonify({'error': 'URL not found'}), 404
-
 @app.route('/my-urls', methods=['GET'])
 @jwt_required
 def get_user_urls(user_id):

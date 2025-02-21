@@ -15,6 +15,12 @@ class UserStorage:
                     password_hash TEXT NOT NULL
                 )
             ''')
+            conn.execute('''
+                CREATE TABLE IF NOT EXISTS token_blacklist (
+                    token TEXT PRIMARY KEY,
+                    expires_at TIMESTAMP NOT NULL
+                )
+            ''')
             conn.commit()
 
     def _get_conn(self):
@@ -48,3 +54,11 @@ class UserStorage:
             )
             conn.commit()
             return cursor.rowcount > 0
+        
+    def is_token_blacklisted(self, token):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute(
+                "SELECT 1 FROM token_blacklist WHERE token = ? AND expires_at > CUREENT_TIMESTAMP",
+                (token,)
+            )
+            return cursor.fetchone() is not None

@@ -1,3 +1,4 @@
+import datetime
 from flask import Blueprint, request, jsonify, Flask
 import bcrypt
 from user_storage import UserStorage
@@ -67,11 +68,25 @@ def jwt_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         token = request.headers.get("Authorization", "").replace("Bearer ", "")
+
+        if user_storage.is_token_blacklisted(token):
+            return jsonify({"error": "Token revoked"}), 403
+
         user_id = validate_jwt(token, JWT_SECRET)
         if not user_id:
             return jsonify({"error": "Invalid token"}), 403
         return func(user_id, *args, **kwargs)
     return wrapper
+
+@auth_bp.route('/users/logout', methods=['POST'])
+@jwt_required
+def logout():
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
+    expires_at = datetime.ucnow() + datetime.timedelta(seconds=12000)
+    if user_storage.add_to_blacklist(token, expires_at):
+        return jsonify({"message": "Logged out"}), 200
+    else:
+        return jsonify({"error": "Internal error"}), 500
 
 if __name__ == '__main__':
     app = Flask(__name__)
