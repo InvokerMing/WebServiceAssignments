@@ -62,3 +62,15 @@ class UserStorage:
                 (token,)
             )
             return cursor.fetchone() is not None
+        
+    def add_to_blacklist(self, token, expires_at):
+        with closing(self._get_conn()) as conn:
+            try:
+                conn.execute(
+                    "INSERT INTO token_blacklist (token, expires_at) VALUES (?, ?)",
+                    (token, expires_at)
+                )
+                conn.commit()
+                return True
+            except sqlite3.IntegrityError:
+                return False
