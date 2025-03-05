@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 from auth import auth_bp, jwt_required
 from url_storage import UrlStorage
 import string
@@ -44,11 +44,19 @@ def create_short_url(user_id):
         'short_url': f"{request.host_url}{short_code}"
     }), 201
 
-@app.route('/<int:url_id>', methods=['GET'])
+@app.route('/id/<int:url_id>', methods=['GET'])
 def get_url_by_id(url_id):
     url_data = storage.get_url(url_id)
     if url_data:
         return jsonify({'value': url_data['original_url']}), 301
+    return jsonify({'error': 'URL not found'}), 404
+
+@app.route('/<short_code>', methods=['GET'])
+@jwt_required
+def redirect_to_url(short_code, user_id):
+    url_data = storage.get_url_by_short_code(short_code, user_id)
+    if url_data:
+        return redirect(url_data['original_url'], code=301) 
     return jsonify({'error': 'URL not found'}), 404
 
 @app.route('/my-urls', methods=['GET'])

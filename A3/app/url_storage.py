@@ -101,3 +101,11 @@ class UrlStorage:
                 (length,)
             )
             return cursor.fetchone()[0]
+        
+    def get_url_by_short_code(self, short_code, user_id):
+        with closing(self._get_conn()) as conn:
+            cursor = conn.execute(
+                "SELECT original_url FROM urls WHERE short_code = ? AND user_id = ?",
+                (short_code, user_id)
+            )
+            return cursor.fetchone() is not None
